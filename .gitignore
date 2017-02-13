@@ -1,0 +1,23 @@
+# python precompiled files:
+*.pyc
+*.pyo
+*~
+*.bak
+*.json
+*.txt
+*classifier*
+*data*
+!*requirements.txt
+!*readme.txt
+!*stop_words.json
+!*blacklist.json
+run/*
+log/*
+*local_settings.py
+
+
+
+
+
+
+

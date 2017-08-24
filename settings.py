@@ -1,45 +1,41 @@
 
 LOG_LEVEL = 'INFO'
-LOG_FILE = 'log/crawler.log'
-LOG_TO_STDOUT = False
+LOG_FILE = 'log/spider.log'
+LOG_TO_STDOUT = True
 
-# graphite
-CARBON_SERVER = '172.16.0.3'
-CARBON_PORT = 2003
+SEEN_FEEDS_PATH = 'seen_feeds.json'
 
-# crawler
-REVISIT_AFTER = 180  # sec
+# gooble docs settings
+GDOCS_TABLE_NAME = 'jobs keywords'
+GDOCS_CREDENTIALS_PATH = 'client_secret.json'
+
+# spider settings
 URL_FETCH_RETRIES = 5  # max retries for failed requests
-CONNECTION_TIMEOUT = 5  # sec
-READ_TIMEOUT = 25  # sec
+SPIDER_CONN_TIMEOUT = 5  # sec
+SPIDER_READ_TIMEOUT = 25  # sec
 
-USER_AGENT = 'Mozilla/5.0'
-HEADERS = {'User-Agent': USER_AGENT}
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:55.0) Gecko/20100101 Firefox/55.0'
+
+HEADERS = {
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
+    'Cache-Control': 'max-age=0',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Host': 'www.upwork.com',
+    'User-Agent': USER_AGENT
+}
 
 
-# feed urls
-URLS = [
-    # {
-    #     'url': 'https://www.upwork.com/ab/feed/jobs/rss?client_hires=1-9%2C10-&contractor_tier=2%2C3&sort=create_time+desc&api_params=1&securityToken=f780fcdc4c1a7ae785405cd4427284e0ade68423f4a423c366a649347249874860cf266c30df9c3776350f6ebdde870b3e4aa0a4f3d421bf21ee6e1785d886c7&userUid=564684666840989696&orgUid=564684666849378305',
-    #     'filter_name': 'base_filter'
-    # },
-    {
-        'url': 'https://www.upwork.com/ab/feed/jobs/rss?budget=250-100000&client_hires=1-9%2C10-&contractor_tier=2%2C3&verified_payment_only=1&q=%28Web+OR+Design+OR+UI+OR+UX+OR+PHP+OR+Laravel+OR+Wordpress+NOT+writer+NOT+translate%29&sort=create_time+desc&api_params=1&securityToken=f780fcdc4c1a7ae785405cd4427284e0ade68423f4a423c366a649347249874860cf266c30df9c3776350f6ebdde870b3e4aa0a4f3d421bf21ee6e1785d886c7&userUid=564684666840989696&orgUid=579929510178926592',
-        'filter_name': 'web'
-    },
-    {
-        'url': 'https://www.upwork.com/ab/feed/jobs/rss?budget=250-100000&category2=data_science_analytics&client_hires=1-9%2C10-&contractor_tier=2%2C3&verified_payment_only=1&sort=create_time+desc&api_params=1&q=&securityToken=f780fcdc4c1a7ae785405cd4427284e0ade68423f4a423c366a649347249874860cf266c30df9c3776350f6ebdde870b3e4aa0a4f3d421bf21ee6e1785d886c7&userUid=564684666840989696&orgUid=579929510178926592',
-        'filter_name': 'bigdata'
-    },
-    {
-        'url': 'https://www.upwork.com/ab/feed/jobs/rss?budget=250-100000&client_hires=1-9%2C10-&contractor_tier=2%2C3&verified_payment_only=1&q=Devops+OR+Linux+system+administrator+NOT+writer&sort=create_time+desc&api_params=1&securityToken=f780fcdc4c1a7ae785405cd4427284e0ade68423f4a423c366a649347249874860cf266c30df9c3776350f6ebdde870b3e4aa0a4f3d421bf21ee6e1785d886c7&userUid=564684666840989696&orgUid=579929510178926592',
-        'filter_name': 'devops'
-    },
-    {
-        'url': 'https://www.upwork.com/ab/feed/jobs/rss?budget=50-100000&client_hires=1-9%2C10-&verified_payment_only=1&q=designer&sort=create_time+desc&api_params=1&securityToken=f780fcdc4c1a7ae785405cd4427284e0ade68423f4a423c366a649347249874860cf266c30df9c3776350f6ebdde870b3e4aa0a4f3d421bf21ee6e1785d886c7&userUid=564684666840989696&orgUid=579929510178926592',
-        'filter_name': 'design'
-    }
-]
+# upwork credentials
+UPWORK_SECURITY_TOKEN = ''
+UPWORK_USER_ID = ''
+UPWORK_ORG_UID = ''
+
+# telegram credentials
+TELEGRAM_TOKEN = ''
+TELEGRAM_CHANNEL = ''
 
 
 try:

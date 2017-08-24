@@ -1,50 +1,59 @@
-# -*- coding: utf-8 -*-
-import logging
+import os
+import json
 import asyncio
-import signal
 
-import settings
-from crawler import Crawler
-from utils import setup_logger
+from core.spider import Spider
+from core.gdocs import GDocs
+from core.logger import setup_logger
+from core.logger import main_logger as logger
+from core.utils import URLBuilder
+from settings import SEEN_FEEDS_PATH
 
 
 setup_logger()
-logger = logging.getLogger(__name__)
 
 
-def shutdown_handler(loop):
-    """
-    handler for proper finishing the futures
-    close all connections
-    stopping the loop
-    """
-    tasks = asyncio.Task.all_tasks(loop)
+def main():
+    doc = GDocs()
     try:
-        loop.stop()
-        for t in tasks:
-            t.cancel()
+        doc.connect()
+        kws = doc.jobs_keywords()
+
     except Exception as e:
-        pass
+        logger.critical(
+            '"{}" while getting keywords from google docs. Exiting'.format(e), exc_info=True)
 
+    else:
+        if not kws:
+            logger.error('no keywords were found. Nothing to do. Exiting')
+            return
 
-def run_crawler():
-    loop = asyncio.get_event_loop()
+        logger.debug('found keywords: "{}"'.format(kws))
 
-    urls = settings.URLS
-    revisit = settings.REVISIT_AFTER
-    graphite_server = settings.CARBON_SERVER
-    graphite_port = settings.CARBON_PORT
+        builder = URLBuilder(kws)
+        loop = asyncio.get_event_loop()
 
-    crawler = Crawler(revisit_after=revisit,
-                      server=graphite_server,
-                      port=graphite_port,
-                      loop=loop)
-    crawler.run(urls)
-    loop.add_signal_handler(
-        signal.SIGINT, shutdown_handler, loop)
-    loop.run_forever()
-    loop.close()
-    crawler.close()
+        if os.path.isfile(SEEN_FEEDS_PATH):
+            with open(SEEN_FEEDS_PATH) as f:
+                seen_feeds = json.load(f)
+        else:
+            seen_feeds = []
+
+        spider = Spider(urls=builder.urls,
+                        loop=loop,
+                        seen_feeds=seen_feeds)
+
+        loop.run_until_complete(
+            spider.run()
+        )
+        spider.close()
+        loop.close()
+
+        with open(SEEN_FEEDS_PATH, 'w') as f:
+            json.dump(spider.seen_feeds, f)
+
 
 if __name__ == "__main__":
-    run_crawler()
+    logger.info('start crawling')
+    main()
+    logger.info('stop crawling')

@@ -132,8 +132,7 @@ class Spider:
         title = ''.join(feed.title.split())
         return self.hasher(title)
 
-    def _get_feed_details(self, tree, feed,
-                          details_len=50):
+    def _get_feed_details(self, tree, feed):
         feed_details = {}
         details_keys = tree.xpath('.//b/text()')
         for key in details_keys:
@@ -145,11 +144,11 @@ class Spider:
             details = self._strip_spaces(details)
             if details:
                 feed_details.setdefault('details', {})
-                feed_details['details'][key] = details[:details_len] + '...'
+                feed_details['details'][key] = details
 
         return feed_details
 
-    def _get_single_feed(self, entry, summary_len=80):
+    def _get_single_feed(self, entry):
         description = entry.summary
         tree = self.get_tree(description)
         if tree is not None:
@@ -159,9 +158,8 @@ class Spider:
             feed = {
                 'url': entry.link.replace('?source=rss', ''),
                 'title': entry.title,
-                'description': description[:summary_len] + '...',
+                'description': description,
                 'published_date': entry.published,
-
             }
             feed.update(details)
 

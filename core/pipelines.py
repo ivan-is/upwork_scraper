@@ -1,3 +1,4 @@
+import json
 from time import sleep
 from pprint import PrettyPrinter
 from telebot import TeleBot
@@ -19,59 +20,44 @@ class BasePipeline:
 
 class TelegramPipeline:
 
-    template = "Title: {title}\n" \
-               "Summary: {description}\n" \
-               "Date: {date}\n" \
-               "URL: {url}\n" \
-               "Details: {details}\n"
+    SUMMARY_LEN = 100
+    DETAILS_LEN = 50
+    JOB_DETAILS_KEYS = ('Country', 'Skills')
 
-    def __init__(self):
+    template = "*Title*: {title}\n" \
+               "*Date*: {date}\n" \
+               "*URL*: [job url]({url})\n" \
+               "*Job details*: `{details}`\n" \
+               "*Summary*: `{description}`\n\n"
+
+    def __init__(self, channel=None):
         self.bot = TeleBot(TELEGRAM_TOKEN)
-        self.channel = TELEGRAM_CHANNEL
+        self.channel = TELEGRAM_CHANNEL if channel is None else channel
 
     def process_item(self, item):
         if item:
+            description = item['description'][:self.SUMMARY_LEN] + '...'
+            details = ''
+            if item['details']:
+                for k, v in item['details'].items():
+                    if k in self.JOB_DETAILS_KEYS:
+                        _details = '{}: {}'.format(k, v)
+                        if len(_details) > self.DETAILS_LEN:
+                            _details = _details[:self.DETAILS_LEN] + '...'
+                        details += _details + '\n'
+
             message = self.template.format(title=item['title'],
-                                           description=item['description'],
+                                           description=description,
                                            url=item['url'],
                                            date=item['published_date'],
-                                           details='no details')
+                                           details=details.strip() or 'no job details')
             try:
-                self.bot.send_message(self.channel, message)
+                self.bot.send_message(
+                    self.channel, message,
+                    parse_mode='Markdown',
+                    disable_web_page_preview=True
+                )
                 sleep(0.5)
             except Exception as e:
                 logger.error(e)
 
-#
-# template = """
-# *{title}*\n
-# ```{description}```\n
-# *{date}*\n
-# """
-#
-# item = {   'description': 'Need a website that will have three related databases: '
-#                    'User Database=&gt;Basic u...',
-#     'details': {   'Category': 'Web, Mobile &amp; Software Dev &gt; Web '
-#                                'Developmen...',
-#                    'Country': 'United States...',
-#                    'Posted On': 'August 24, 2017 16:11 UTC...',
-#                    'Skills': 'MySQL Administration, PHP, Website '
-#                              'Development...'},
-#     'id': -6525604513296239443,
-#     'published_date': 'Thu, 24 Aug 2017 15:50:13 +0000',
-#     'title': 'Back-end and Front page development - Upwork',
-#     'url': 'https://www.upwork.com/jobs/Back-end-and-Front-page-development_%7E015ce6dcf18cb60465'}
-#
-# m = template.format(title=item['title'],
-#                     description=item['description'],
-#                     date=item['published_date'])
-#
-# from telebot import types
-# markup = types.InlineKeyboardMarkup(row_width=2)
-# itembtn1 = types.InlineKeyboardButton('a')
-# itembtn2 = types.InlineKeyboardButton('v')
-# # itembtn3 = types.KeyboardButton('d')
-# markup.add(itembtn1, itembtn2)
-#
-# bot = TeleBot(TELEGRAM_TOKEN)
-# bot.send_message(TELEGRAM_CHANNEL, item)

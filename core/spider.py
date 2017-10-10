@@ -199,6 +199,7 @@ class Spider:
         if tasks:
             feeds = await asyncio.gather(*tasks)
             feeds = list(chain(*feeds))
+            logger.info('found {} new jobs'.format(len(feeds)))
             for feed in feeds:
                 self._pipe.process_item(feed)
 

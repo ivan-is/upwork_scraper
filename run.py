@@ -33,6 +33,7 @@ def main():
         builder = URLBuilder(kws)
         loop = asyncio.get_event_loop()
 
+        # extract seen feeds from json
         if os.path.isfile(SEEN_FEEDS_PATH):
             with open(SEEN_FEEDS_PATH) as f:
                 seen_feeds = json.load(f)
